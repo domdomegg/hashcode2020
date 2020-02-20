@@ -4,11 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Main {
 
@@ -36,7 +34,12 @@ public class Main {
     }
 
     private static void orderLibraries(List<Library> libraries) {
-        libraries.sort(Comparator.comparing(Library::getSignupProcessLength));
+        libraries.sort(Comparator
+                .comparing(Library::getSignupProcessLength)
+                .thenComparing(library -> -library.getSumOfBookScores())
+//                .thenComparing(Library::getSumOfBookScores)
+//                .thenComparing(Library::getShippingSpeed)
+        );
     }
 
 
@@ -44,12 +47,24 @@ public class Main {
         orderLibraries(libraries);
         List<Library> librariesToPrint = new ArrayList<>();
 
+        Set<Book> scannedBooks = new HashSet<>();
+
         for (int i = 0; i < libraries.size(); i++) {
             Library library = libraries.get(i);
             if (days > library.signupProcessLength) {
                 days -= library.signupProcessLength;
                 long booksWeCanSend = Math.min((long) (days) * library.shippingSpeed, library.books.size());
-                library.output = library.id + " " + booksWeCanSend + "\n" + library.books.stream().sorted(Comparator.comparing(Book::getScore).reversed()).limit(booksWeCanSend).map(book -> "" + book.id).collect(Collectors.joining(" "));
+                List<Book> booksBeingScannedAtThisLibrary = library.books.stream()
+                        .filter(book -> !scannedBooks.contains(book))
+                        .sorted(Comparator.comparing(Book::getScore).reversed())
+                        .limit(booksWeCanSend)
+                        .collect(Collectors.toList());
+                if (booksBeingScannedAtThisLibrary.size() == 0) {
+                    days += library.signupProcessLength;
+                    continue;
+                }
+                scannedBooks.addAll(booksBeingScannedAtThisLibrary);
+                library.output = library.id + " " + booksBeingScannedAtThisLibrary.size() + "\n" + booksBeingScannedAtThisLibrary.stream().map(book -> "" + book.id).collect(Collectors.joining(" "));
                 librariesToPrint.add(library);
             }
         }
@@ -147,7 +162,7 @@ public class Main {
                     '}';
         }
 
-        public int sumOfBookScores() {
+        public int getSumOfBookScores() {
             int libraryScore = 0;
             for (int i = 0; i < this.books.size(); i++) {
                 libraryScore += this.books.get(i).score;

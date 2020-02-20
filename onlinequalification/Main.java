@@ -36,7 +36,11 @@ public class Main {
     }
 
     private static void orderLibraries(List<Library> libraries) {
-        libraries.sort(Comparator.comparing(Library::getSignupProcessLength));
+        libraries.sort(Comparator
+                .comparing(Library::getSignupProcessLength)
+                .thenComparing(Library::getSumOfBookScores)
+                .thenComparing(Library::getShippingSpeed)
+        );
     }
 
 
@@ -147,7 +151,7 @@ public class Main {
                     '}';
         }
 
-        public int sumOfBookScores() {
+        public int getSumOfBookScores() {
             int libraryScore = 0;
             for (int i = 0; i < this.books.size(); i++) {
                 libraryScore += this.books.get(i).score;
