@@ -29,12 +29,13 @@ public class Main {
         assert books.size() == B;
 
         List<Library> libraries = parseLibraries(in, books);
+        assert books.size() == L;
 
-        System.out.println("B = " + B);
-        System.out.println("L = " + L);
-        System.out.println("D = " + D);
-        System.out.println("books = " + books);
-        System.out.println("libraries = " + libraries);
+        solve(D, books, libraries);
+    }
+
+    private static void solve(int days, List<Book> books, List<Library> libraries) {
+
     }
 
     private static List<Library> parseLibraries(BufferedReader in, List<Book> allBooks) throws IOException {
