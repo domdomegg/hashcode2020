@@ -4,10 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Main {
@@ -35,25 +32,68 @@ public class Main {
         solve(D, books, libraries);
     }
 
-    private static void orderLibraries(List<Library> libraries) {
-        libraries.sort(Comparator
-                .comparing(Library::getSignupProcessLength)
-                .thenComparing(Library::getSumOfBookScores)
-                .thenComparing(Library::getShippingSpeed)
-        );
+    private static int getBestLibraryIndex(int days, List<Library> libraries, Set<Book> scannedBooks) {
+        long maxVal = 0;
+        int maxIndex = 0;
+        for (int i = 0; i < libraries.size(); i++) {
+            Library library = libraries.get(i);
+            long val = 0;
+            if (days >= library.signupProcessLength) {
+                long booksWeCanSend = Math.min((long) (days) * library.shippingSpeed, library.books.size());
+
+                if (booksWeCanSend > maxVal) {
+                    val = library.books.stream()
+                            .filter(book -> !scannedBooks.contains(book))
+                            .sorted(Comparator.comparing(Book::getScore).reversed())
+                            .limit(booksWeCanSend).count();
+                }
+            }
+
+            if (maxVal < val) {
+                maxIndex = i;
+                maxVal = val;
+            }
+        }
+
+        return maxIndex;
     }
+
+//    private static long getScoreAdded(int days, Library library, Set<Book> scannedBooks) {
+//        if (days < library.signupProcessLength) {
+//            return 0;
+//        }
+//
+//        long booksWeCanSend = Math.min((long) (days) * library.shippingSpeed, library.books.size());
+//        return library.books.stream()
+//                .filter(book -> !scannedBooks.contains(book))
+//                .sorted(Comparator.comparing(Book::getScore).reversed())
+//                .limit(booksWeCanSend).count();
+//    }
 
 
     private static void solve(int days, List<Book> books, List<Library> libraries) {
-        orderLibraries(libraries);
         List<Library> librariesToPrint = new ArrayList<>();
 
-        for (int i = 0; i < libraries.size(); i++) {
-            Library library = libraries.get(i);
+        Set<Book> scannedBooks = new HashSet<>();
+
+        while (!libraries.isEmpty()) {
+            int libraryIndex = getBestLibraryIndex(days, libraries, scannedBooks);
+            Library library = libraries.get(libraryIndex);
+            libraries.remove(library);
             if (days > library.signupProcessLength) {
                 days -= library.signupProcessLength;
                 long booksWeCanSend = Math.min((long) (days) * library.shippingSpeed, library.books.size());
-                library.output = library.id + " " + booksWeCanSend + "\n" + library.books.stream().sorted(Comparator.comparing(Book::getScore).reversed()).limit(booksWeCanSend).map(book -> "" + book.id).collect(Collectors.joining(" "));
+                List<Book> booksBeingScannedAtThisLibrary = library.books.stream()
+                        .filter(book -> !scannedBooks.contains(book))
+                        .sorted(Comparator.comparing(Book::getScore).reversed())
+                        .limit(booksWeCanSend)
+                        .collect(Collectors.toList());
+                if (booksBeingScannedAtThisLibrary.size() == 0) {
+                    days += library.signupProcessLength;
+                    continue;
+                }
+                scannedBooks.addAll(booksBeingScannedAtThisLibrary);
+                library.output = library.id + " " + booksBeingScannedAtThisLibrary.size() + "\n" + booksBeingScannedAtThisLibrary.stream().map(book -> "" + book.id).collect(Collectors.joining(" "));
                 librariesToPrint.add(library);
             }
         }
