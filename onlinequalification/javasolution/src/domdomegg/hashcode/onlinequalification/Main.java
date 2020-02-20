@@ -36,10 +36,9 @@ public class Main {
     }
 
     private static void solve(int days, List<Book> books, List<Library> libraries) {
-
         Library library = libraries.get(0);
         days -= library.signupProcessLength;
-        int booksWeCanSend = Math.min(days * library.shippingSpeed, library.books.size());
+        long booksWeCanSend = Math.min((long) (days) * library.shippingSpeed, library.books.size());
 
         System.out.println("1");
         System.out.println("0 " + booksWeCanSend);
