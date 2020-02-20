@@ -35,6 +35,36 @@ public class Main {
         solve(D, books, libraries);
     }
 
+    private static void scoreLibraries(Library library) {
+        int libraryScore = 0;
+        for (int i = 0; i < library.books.length(); i++) {
+          libraryScore += library.books.get(i).score;
+        }
+
+    }
+
+
+    private static void orderLibraries(List<Library> libraries) {
+
+        List<Library> sortedLibraries = new ArrayList<>();
+        int[] libraryScores = new int[]
+        for (int i = 0; i < libraries.length(); i++) {
+          libraryScore = scoreLibraries(libraries.get(i));
+          int count = 0;
+          if(!sortedLibraries.isEmpty()) {
+            while(libraryScores.length() > count && libraryScores[count] > libraryScore) {
+              count++;
+            }
+            libraryScores[count] = libraryScore;
+            sortedLibraries.add(count, libraries.get(i));
+          }
+
+        }
+
+
+    }
+
+
     private static void solve(int days, List<Book> books, List<Library> libraries) {
 
         Library library = libraries.get(0);
