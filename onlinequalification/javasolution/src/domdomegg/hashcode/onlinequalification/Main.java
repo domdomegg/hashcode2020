@@ -37,7 +37,7 @@ public class Main {
 
     private static void scoreLibraries(Library library) {
         int libraryScore = 0;
-        for (int i = 0; i < library.books.length(); i++) {
+        for (int i = 0; i < library.books.size(); i++) {
           libraryScore += library.books.get(i).score;
         }
 
@@ -48,7 +48,7 @@ public class Main {
 
         List<Library> sortedLibraries = new ArrayList<>();
         int[] libraryScores = new int[]
-        for (int i = 0; i < libraries.length(); i++) {
+        for (int i = 0; i < libraries.size(); i++) {
           libraryScore = scoreLibraries(libraries.get(i));
           int count = 0;
           if(!sortedLibraries.isEmpty()) {
