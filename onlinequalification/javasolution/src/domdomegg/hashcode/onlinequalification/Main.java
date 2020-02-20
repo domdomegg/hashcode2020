@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Main {
 
@@ -36,51 +35,29 @@ public class Main {
         solve(D, books, libraries);
     }
 
-    private static void scoreLibraries(Library library) {
-        int libraryScore = 0;
-        for (int i = 0; i < library.books.size(); i++) {
-          libraryScore += library.books.get(i).score;
-        }
-
-    }
-
-
     private static void orderLibraries(List<Library> libraries) {
-
-        List<Library> sortedLibraries = new ArrayList<>();
-        int[] libraryScores = new int[]
-        for (int i = 0; i < libraries.size(); i++) {
-          libraryScore = scoreLibraries(libraries.get(i));
-          int count = 0;
-          if(!sortedLibraries.isEmpty()) {
-            while(libraryScores.length() > count && libraryScores[count] > libraryScore) {
-              count++;
-            }
-            libraryScores[count] = libraryScore;
-            sortedLibraries.add(count, libraries.get(i));
-          }
-
-        }
-
-
+        libraries.sort(Comparator.comparing(Library::getSignupProcessLength));
     }
 
 
     private static void solve(int days, List<Book> books, List<Library> libraries) {
-        List<String> libraryPrints = new ArrayList<>();
+        orderLibraries(libraries);
+        List<Library> librariesToPrint = new ArrayList<>();
 
         for (int i = 0; i < libraries.size(); i++) {
             Library library = libraries.get(i);
             if (days > library.signupProcessLength) {
                 days -= library.signupProcessLength;
                 long booksWeCanSend = Math.min((long) (days) * library.shippingSpeed, library.books.size());
-                libraryPrints.add(i + " " + booksWeCanSend);
-                libraryPrints.add(library.books.stream().sorted(Comparator.comparing(Book::getScore).reversed()).limit(booksWeCanSend).map(book -> "" + book.id).collect(Collectors.joining(" ")));
+                library.output = library.id + " " + booksWeCanSend + "\n" + library.books.stream().sorted(Comparator.comparing(Book::getScore).reversed()).limit(booksWeCanSend).map(book -> "" + book.id).collect(Collectors.joining(" "));
+                librariesToPrint.add(library);
             }
         }
+
+        librariesToPrint.sort(Comparator.comparing(Library::getId));
         
-        System.out.println(libraryPrints.size() / 2);
-        for (String s : libraryPrints) System.out.println(s);
+        System.out.println(librariesToPrint.size());
+        for (Library library : librariesToPrint) System.out.println(library.output);
     }
 
     private static List<Library> parseLibraries(BufferedReader in, int numberOfLibraries, List<Book> allBooks) throws IOException {
@@ -92,7 +69,7 @@ public class Main {
             int shippingSpeed = Integer.parseInt(line.split(" ")[2]);
             line = in.readLine();
             List<Book> books = Arrays.stream(line.split(" ")).map(Integer::parseInt).map(allBooks::get).collect(Collectors.toList());
-            libraries.add(new Library(signupProcessLength, shippingSpeed, books));
+            libraries.add(new Library(i, signupProcessLength, shippingSpeed, books));
         }
 
         return libraries;
@@ -103,12 +80,12 @@ public class Main {
         Library bestLibrary = libraries.get(0);
         int bestSignupTime = library.signupProcessLength;
 
-        for (i=1; i<libraries.length(); i++) {
-            Library library = libraries.get(i);
+        for (int i = 1; i < libraries.size(); i++) {
+            library = libraries.get(i);
             int signupTime = library.signupProcessLength;
 
-            while(signupTime < bestSignupTime) {
-                Library bestLibrary = libraries.get(i);
+            if (signupTime < bestSignupTime) {
+                bestLibrary = libraries.get(i);
                 bestSignupTime = signupTime;
             }
         }
@@ -121,12 +98,12 @@ public class Main {
         Library bestLibrary = libraries.get(0);
         int bestShippingSpeed = library.shippingSpeed;
 
-        for (i=1; i<libraries.length(); i++) {
-            Library library = libraries.get(i);
+        for (int i = 1; i<libraries.size(); i++) {
+            library = libraries.get(i);
             int shippingSpeed = library.shippingSpeed;
 
-            while(shippingSpeed > bestShippingSpeed) {
-                Library bestLibrary = libraries.get(i);
+            if (shippingSpeed > bestShippingSpeed) {
+                bestLibrary = libraries.get(i);
                 bestShippingSpeed = shippingSpeed;
             }
         }
@@ -135,23 +112,47 @@ public class Main {
     }
 
     private static class Library {
+        int id;
         int signupProcessLength;
         int shippingSpeed;
         List<Book> books;
+        String output;
 
-        public Library(int signupProcessLength, int shippingSpeed, List<Book> books) {
+        public Library(int id, int signupProcessLength, int shippingSpeed, List<Book> books) {
+            this.id = id;
             this.signupProcessLength = signupProcessLength;
             this.shippingSpeed = shippingSpeed;
             this.books = books;
         }
 
+        public int getId() {
+            return id;
+        }
+
+        public int getShippingSpeed() {
+            return shippingSpeed;
+        }
+
+        public int getSignupProcessLength() {
+            return signupProcessLength;
+        }
+
         @Override
         public String toString() {
             return "Library{" +
-                    "signupProcessLength=" + signupProcessLength +
+                    "id=" + id +
+                    ", signupProcessLength=" + signupProcessLength +
                     ", shippingSpeed=" + shippingSpeed +
                     ", books=" + books +
                     '}';
+        }
+
+        public int sumOfBookScores() {
+            int libraryScore = 0;
+            for (int i = 0; i < this.books.size(); i++) {
+                libraryScore += this.books.get(i).score;
+            }
+            return libraryScore;
         }
     }
 
