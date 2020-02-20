@@ -22,13 +22,14 @@ public class Main {
         int L = Integer.parseInt(line.split(" ")[1]);
         int D = Integer.parseInt(line.split(" ")[2]);
 
-        List<Book> books = Arrays.stream(in.readLine().split(" "))
-                .map(Integer::parseInt)
-                .map(Book::new)
-                .collect(Collectors.toList());
+        List<Book> books = new ArrayList<>();
+        String[] bookScores = in.readLine().split(" ");
+        for (int i = 0; i < bookScores.length; i++) {
+            books.add(new Book(i, Integer.parseInt(bookScores[i])));
+        }
         assert books.size() == B;
 
-        List<Library> libraries = parseLibraries(in, books);
+        List<Library> libraries = parseLibraries(in, L, books);
         assert books.size() == L;
 
         solve(D, books, libraries);
@@ -36,12 +37,21 @@ public class Main {
 
     private static void solve(int days, List<Book> books, List<Library> libraries) {
 
+        Library library = libraries.get(0);
+        days -= library.signupProcessLength;
+        int booksWeCanSend = Math.min(days * library.shippingSpeed, library.books.size());
+
+        System.out.println("1");
+        System.out.println("0 " + booksWeCanSend);
+        System.out.println(library.books.stream().limit(booksWeCanSend).map(book -> "" + book.id).collect(Collectors.joining(" ")));
+
     }
 
-    private static List<Library> parseLibraries(BufferedReader in, List<Book> allBooks) throws IOException {
+    private static List<Library> parseLibraries(BufferedReader in, int numberOfLibraries, List<Book> allBooks) throws IOException {
         List<Library> libraries = new ArrayList<>();
         String line;
-        while ((line = in.readLine()) != null) {
+        for (int i = 0; i < numberOfLibraries; i++) {
+            line = in.readLine();
             int signupProcessLength = Integer.parseInt(line.split(" ")[1]);
             int shippingSpeed = Integer.parseInt(line.split(" ")[2]);
             line = in.readLine();
@@ -74,16 +84,19 @@ public class Main {
     }
 
     private static class Book {
+        int id;
         int score;
 
-        public Book(int score) {
+        public Book(int id, int score) {
+            this.id = id;
             this.score = score;
         }
 
         @Override
         public String toString() {
             return "Book{" +
-                    "score=" + score +
+                    "id=" + id +
+                    ", score=" + score +
                     '}';
         }
     }
