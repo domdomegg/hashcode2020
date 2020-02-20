@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,8 +43,7 @@ public class Main {
 
         System.out.println("1");
         System.out.println("0 " + booksWeCanSend);
-        System.out.println(library.books.stream().limit(booksWeCanSend).map(book -> "" + book.id).collect(Collectors.joining(" ")));
-
+        System.out.println(library.books.stream().sorted(Comparator.comparing(Book::getScore).reversed()).limit(booksWeCanSend).map(book -> "" + book.id).collect(Collectors.joining(" ")));
     }
 
     private static List<Library> parseLibraries(BufferedReader in, int numberOfLibraries, List<Book> allBooks) throws IOException {
@@ -97,6 +97,14 @@ public class Main {
                     "id=" + id +
                     ", score=" + score +
                     '}';
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public int getScore() {
+            return score;
         }
     }
 }
