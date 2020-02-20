@@ -62,6 +62,42 @@ public class Main {
         return libraries;
     }
 
+    public static Library signupTimeRank(List<Library> libraries) {
+        Library library = libraries.get(0);
+        Library bestLibrary = libraries.get(0);
+        int bestSignupTime = library.signupProcessLength;
+
+        for (i=1; i<libraries.length(); i++) {
+            Library library = libraries.get(i);
+            int signupTime = library.signupProcessLength;
+
+            while(signupTime < bestSignupTime) {
+                Library bestLibrary = libraries.get(i);
+                bestSignupTime = signupTime;
+            }
+        }
+
+       return bestLibrary;
+    }
+
+    public static Library shippingSpeedRank(List<Library> libraries) {
+        Library library = libraries.get(0);
+        Library bestLibrary = libraries.get(0);
+        int bestShippingSpeed = library.shippingSpeed;
+
+        for (i=1; i<libraries.length(); i++) {
+            Library library = libraries.get(i);
+            int shippingSpeed = library.shippingSpeed;
+
+            while(shippingSpeed > bestShippingSpeed) {
+                Library bestLibrary = libraries.get(i);
+                bestShippingSpeed = shippingSpeed;
+            }
+        }
+
+       return bestLibrary;
+    }
+
     private static class Library {
         int signupProcessLength;
         int shippingSpeed;
